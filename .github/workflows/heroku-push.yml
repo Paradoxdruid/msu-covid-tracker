@@ -14,3 +14,4 @@ jobs:
           heroku_app_name: "msu-covid"
           heroku_email: "bonham@gmail.com"
           usedocker: true
+          dontuseforce: 1
