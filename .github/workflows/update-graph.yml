@@ -19,7 +19,7 @@ jobs:
           python-version: 3.7
 
       - name: Install Requirements
-        run: pip install requests beautifulsoup4 pandas plotly
+        run: pip install requests beautifulsoup4
 
       - name: Execute Python script
         run: |

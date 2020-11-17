@@ -19,8 +19,9 @@ import json
 import re
 import csv
 from datetime import date
-import pandas as pd
-import plotly.graph_objects as go
+
+# import pandas as pd
+# import plotly.graph_objects as go
 
 #  and output filename
 URL: str = "https://public.tableau.com/views/COVIDTracker_16021924036240/Dashboard2"
@@ -126,7 +127,10 @@ def parse_tableau_data(url, sheetid):
         List[str]: list of Tableau data values
     """
     # Grab the data and parse it
-    r2 = requests.post(url, data={"sheet_id": sheetid},)
+    r2 = requests.post(
+        url,
+        data={"sheet_id": sheetid},
+    )
 
     dataReg = re.search(r"\d+;({.*})\d+;({.*})", r2.text, re.MULTILINE)
 
@@ -169,81 +173,81 @@ def write_to_csv(values, filename):
     return
 
 
-def make_covid_graph(csv_filename):
-    """Create a dataframe from covid csv file and output a dated .png image.
+# def make_covid_graph(csv_filename):
+#     """Create a dataframe from covid csv file and output a dated .png image.
 
-    Args:
-        css_filename (str): filename of .csv to process
-    """
-    df, date = read_covid_csv(csv_filename)
-    make_graph(df, date)
-    return
-
-
-def read_covid_csv(csv_filename):
-    """Read in a .csv file with covid case data and return a dataframe and current date.
-
-    Args:
-        csv_filename (str): filename of .csv to process
-
-    Returns:
-        Tuple[pd.DataFrame, str]: dataframe of .csv file info and string of current date.
-    """
-
-    df = pd.read_csv(csv_filename, header=0)
-    df["Date"] = pd.to_datetime(df["Date"])
-    date = df["Date"].iloc[-1].strftime("%Y_%m_%d")
-    return df, date
+#     Args:
+#         css_filename (str): filename of .csv to process
+#     """
+#     df, date = read_covid_csv(csv_filename)
+#     make_graph(df, date)
+#     return
 
 
-def make_graph(df, date):
-    """Take in a dataframe and current date and write a pretty .png image.
+# def read_covid_csv(csv_filename):
+#     """Read in a .csv file with covid case data and return a dataframe and current date.
 
-    Args:
-        df (pd.DataFrame): covid data dataframe
-        date (str): latest date in string format
-    """
+#     Args:
+#         csv_filename (str): filename of .csv to process
 
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=df["Date"],
-            y=df["Case"],
-            mode="lines+markers+text",
-            name="Total Cases",
-            text=df["Case"],
-            textposition="top center",
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=df["Date"],
-            y=df["New"],
-            mode="lines+markers+text",
-            name="New Cases",
-            text=df["New"],
-            textposition="top center",
-        )
-    )
+#     Returns:
+#         Tuple[pd.DataFrame, str]: dataframe of .csv file info and string of current date.
+#     """
 
-    fig.update_layout(
-        title="COVID Cases at MSU Denver",
-        xaxis_title="Date",
-        yaxis_title="Cases",
-        template="ggplot2",
-        # color_discrete_sequence=colors.sequential.Rainbow_r,
-        #     height=500,
-        #     width=900,
-        legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
-    )
+#     df = pd.read_csv(csv_filename, header=0)
+#     df["Date"] = pd.to_datetime(df["Date"])
+#     date = df["Date"].iloc[-1].strftime("%Y_%m_%d")
+#     return df, date
 
-    fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
-    fig.update_yaxes(showline=True, linewidth=1, linecolor="black")
 
-    fig.update_xaxes(dtick="D1", tickformat="%b %d")
+# def make_graph(df, date):
+#     """Take in a dataframe and current date and write a pretty .png image.
 
-    fig.write_image("./assets/msu_covid.png")
-    return
+#     Args:
+#         df (pd.DataFrame): covid data dataframe
+#         date (str): latest date in string format
+#     """
+
+#     fig = go.Figure()
+#     fig.add_trace(
+#         go.Scatter(
+#             x=df["Date"],
+#             y=df["Case"],
+#             mode="lines+markers+text",
+#             name="Total Cases",
+#             text=df["Case"],
+#             textposition="top center",
+#         )
+#     )
+#     fig.add_trace(
+#         go.Scatter(
+#             x=df["Date"],
+#             y=df["New"],
+#             mode="lines+markers+text",
+#             name="New Cases",
+#             text=df["New"],
+#             textposition="top center",
+#         )
+#     )
+
+#     fig.update_layout(
+#         title="COVID Cases at MSU Denver",
+#         xaxis_title="Date",
+#         yaxis_title="Cases",
+#         template="ggplot2",
+#         # color_discrete_sequence=colors.sequential.Rainbow_r,
+#         #     height=500,
+#         #     width=900,
+#         legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
+#     )
+
+#     fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
+#     fig.update_yaxes(showline=True, linewidth=1, linecolor="black")
+
+#     fig.update_xaxes(dtick="D1", tickformat="%b %d")
+
+#     fig.write_image("./assets/msu_covid.png")
+#     return
 
 
 if __name__ == "__main__":
