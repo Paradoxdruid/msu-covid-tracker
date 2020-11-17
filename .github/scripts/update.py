@@ -44,7 +44,7 @@ def main(url, filename):
         filename (str): output csv filename
     """
     get_data_process_and_write_csv(url, filename)
-    make_covid_graph(filename)
+    # make_covid_graph(filename)
     return
 
 
