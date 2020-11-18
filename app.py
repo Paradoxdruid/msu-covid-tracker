@@ -20,40 +20,61 @@ def make_graph(csv_filename):
 
     Returns:
         fig: plotly figure object
+        week_to_week: int of % change over time in new cases
     """
 
     df = pd.read_csv(csv_filename, header=0)
     df["Date"] = pd.to_datetime(df["Date"])
+    df = df.iloc[1:]
+    df["RollingCase"] = df["Case"].rolling(3).mean()
+    df["RollingNew"] = df["New"].rolling(3).mean()
+    week_to_week = int(
+        100 * ((df["New"].iloc[-7:].mean() / df["New"].iloc[-14:-7].mean()) - 1)
+    )
 
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=df["Date"],
             y=df["Case"],
-            mode="lines+markers+text",
+            mode="markers",
             name="Total Cases",
-            text=df["Case"],
-            textposition="top center",
+            marker={"color": "red"},
         )
     )
     fig.add_trace(
         go.Scatter(
             x=df["Date"],
             y=df["New"],
-            mode="lines+markers+text",
+            mode="markers",
             name="New Cases",
-            text=df["New"],
-            textposition="top center",
+            marker={"color": "blue"},
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=df["Date"],
+            y=df["RollingCase"],
+            mode="lines",
+            name="Average Total Cases",
+            line={"color": "red"},
+            showlegend=False,
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=df["Date"],
+            y=df["RollingNew"],
+            mode="lines",
+            name="Average New Cases",
+            line={"color": "blue"},
+            showlegend=False,
         )
     )
     fig.update_layout(
-        # title="COVID Cases at MSU Denver",
         xaxis_title="Date",
         yaxis_title="Cases",
         template="ggplot2",
-        # color_discrete_sequence=colors.sequential.Rainbow_r,
-        #     height=500,
-        #     width=900,
         legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
     )
 
@@ -62,21 +83,25 @@ def make_graph(csv_filename):
 
     fig.update_xaxes(dtick="D1", tickformat="%b %d")
 
-    return fig
+    return fig, week_to_week
 
 
+fig, week_to_week = make_graph("msu_covid.csv")
 app.layout = dbc.Container(
     dbc.Row(
         dbc.Col(
             dbc.Card(
                 [
-                    # dbc.CardImg(src=app.get_asset_url("msu_covid.png"), top=True),
                     dbc.CardHeader(
                         html.H4("MSU Denver COVID Cases", className="card-title"),
                     ),
-                    dbc.CardBody([dcc.Graph(figure=make_graph("msu_covid.csv"))]),
+                    dbc.CardBody([dcc.Graph(figure=fig)]),
+                    dbc.CardFooter(
+                        html.P(
+                            f"On average, new cases are up {week_to_week}% week over week.",
+                        ),
+                    ),
                 ],
-                # style={"width": "18rem"},
             ),
             width={"size": 6, "offset": 3},
         ),
