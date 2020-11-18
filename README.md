@@ -5,7 +5,7 @@
 ## Description
 Collects daily [MSU Denver covid dashboard](https://www.msudenver.edu/safe-return-to-campus/) data and publishes it in a plotly dash dashboard at:
 
-**[msu-covid-tracker.herokuapp.com](msu-covid-tracker.herokuapp.com)**
+**[msu-covid-tracker.herokuapp.com](https://msu-covid-tracker.herokuapp.com)**
 
 ## Workflow
 This app relies on [Github actions](https://github.com/features/actions) to grab updated data, commit them to this repository, and then push those changes to dynamic python hosting on heroku.com.
