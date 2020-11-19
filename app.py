@@ -5,7 +5,7 @@ import dash_html_components as html
 import pandas as pd
 import plotly.graph_objects as go
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
 app.title = "MSU COVID"
@@ -76,6 +76,7 @@ def make_graph(csv_filename):
         yaxis_title="Cases",
         template="ggplot2",
         legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
+        margin={"t": 40, "r": 40, "l": 40, "b": 40},
     )
 
     fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
@@ -102,6 +103,7 @@ app.layout = dbc.Container(
                         ),
                     ),
                 ],
+                className="shadow-lg border-primary mb-3",
             ),
             width={"size": 6, "offset": 3},
             style={"min-width": "400px"},
@@ -109,6 +111,8 @@ app.layout = dbc.Container(
         style={"padding-top": "40px"},
     ),
     fluid=True,
+    className="bg-secondary",
+    style={"min-height": "100vh"},
 )
 
 if __name__ == "__main__":
