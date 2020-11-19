@@ -104,6 +104,7 @@ app.layout = dbc.Container(
                 ],
             ),
             width={"size": 6, "offset": 3},
+            style={"min-width": "400px"},
         ),
         style={"padding-top": "40px"},
     ),
