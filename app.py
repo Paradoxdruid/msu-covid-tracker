@@ -20,7 +20,7 @@ def make_graph(csv_filename):
 
     Returns:
         fig: plotly figure object
-        week_to_week: int of % change over time in new cases
+        week_to_week: str explaining % change over time in new cases
     """
 
     df = pd.read_csv(csv_filename, header=0)
@@ -31,6 +31,12 @@ def make_graph(csv_filename):
     week_to_week = int(
         100 * ((df["New"].iloc[-7:].mean() / df["New"].iloc[-14:-7].mean()) - 1)
     )
+
+    def weekly_text(week_to_week):
+        if week_to_week > 0:
+            return f"On average, new cases are up {week_to_week}% week over week."
+        else:
+            return f"On average, new cases are down {week_to_week}% week over week."
 
     fig = go.Figure()
     fig.add_trace(
@@ -71,6 +77,7 @@ def make_graph(csv_filename):
             showlegend=False,
         )
     )
+
     fig.update_layout(
         xaxis_title="Date",
         yaxis_title="Cases",
@@ -84,32 +91,30 @@ def make_graph(csv_filename):
 
     fig.update_xaxes(dtick="D1", tickformat="%b %d")
 
-    return fig, week_to_week
+    return fig, weekly_text(week_to_week)
 
 
 fig, week_to_week = make_graph("msu_covid.csv")
 app.layout = dbc.Container(
-    dbc.Row(
-        dbc.Col(
-            dbc.Card(
-                [
-                    dbc.CardHeader(
-                        html.H4("MSU Denver COVID Cases", className="card-title"),
-                    ),
-                    dbc.CardBody([dcc.Graph(figure=fig)]),
-                    dbc.CardFooter(
-                        html.P(
-                            f"On average, new cases are up {week_to_week}% week over week.",
+    [
+        dbc.Row(
+            dbc.Col(
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            html.H4("MSU Denver COVID Cases", className="card-title"),
                         ),
-                    ),
-                ],
-                className="shadow-lg border-primary mb-3",
+                        dbc.CardBody([dcc.Graph(figure=fig)]),
+                        dbc.CardFooter(html.P(week_to_week)),
+                    ],
+                    className="shadow-lg border-primary mb-3",
+                ),
+                width={"size": 6, "offset": 3},
+                style={"min-width": "600px"},
             ),
-            width={"size": 6, "offset": 3},
-            style={"min-width": "400px"},
+            style={"padding-top": "40px"},
         ),
-        style={"padding-top": "40px"},
-    ),
+    ],
     fluid=True,
     className="bg-secondary",
     style={"min-height": "100vh"},
