@@ -24,7 +24,8 @@ from datetime import date
 # import plotly.graph_objects as go
 
 #  and output filename
-URL: str = "https://public.tableau.com/views/COVIDTracker_16021924036240/Dashboard2"
+# URL: str = "https://public.tableau.com/views/COVIDTracker_16021924036240/Dashboard2"
+URL: str = "https://public.tableau.com/views/COVIDTracker_16039090369530/Dashboard2"
 """Default url: MSU Denver COVID Dashboard"""
 
 FILENAME: str = "./msu_covid.csv"
