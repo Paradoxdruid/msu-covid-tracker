@@ -82,7 +82,7 @@ def make_graph(csv_filename):
         xaxis_title="Date",
         yaxis_title="Cases",
         template="ggplot2",
-        legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
+        legend=dict(orientation="v", yanchor="bottom", y=0.8, xanchor="left", x=0),
         margin={"t": 40, "r": 40, "l": 40, "b": 40},
     )
 
