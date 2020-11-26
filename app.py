@@ -78,6 +78,26 @@ def make_graph(csv_filename):
         )
     )
 
+    fig.add_shape(
+        type="line",
+        x0="2020-11-22",
+        x1="2020-11-22",
+        yref="paper",
+        y0=0,
+        y1=1,
+        line=dict(color="black", width=2, dash="dot"),
+    )
+
+    fig.add_annotation(
+        x="2020-11-22",
+        yref="paper",
+        y=0.5,
+        text="Data Source change",
+        showarrow=False,
+        xshift=-15,
+        textangle=-90,
+    )
+
     fig.update_layout(
         xaxis_title="Date",
         yaxis_title="Cases",
