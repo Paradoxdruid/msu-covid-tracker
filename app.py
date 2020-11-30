@@ -109,7 +109,7 @@ def make_graph(csv_filename):
     fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
     fig.update_yaxes(showline=True, linewidth=1, linecolor="black")
 
-    fig.update_xaxes(dtick="D1", tickformat="%b %d")
+    fig.update_xaxes(tickformat="%b %d")  # dtick="D1",
 
     return fig, weekly_text(week_to_week)
 
@@ -128,6 +128,7 @@ app.layout = dbc.Container(
                         dbc.CardFooter(html.P(week_to_week)),
                     ],
                     className="shadow-lg border-primary mb-3",
+                    style={"min-width": "550px"},
                 ),
                 width={"size": 6, "offset": 3},
                 style={"min-width": "600px"},
