@@ -5,7 +5,11 @@ import dash_html_components as html
 import pandas as pd
 import plotly.graph_objects as go
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.FLATLY],
+    meta_tags=[{"name": "google", "content": "notranslate"}],
+)
 server = app.server
 
 app.title = "MSU COVID"
