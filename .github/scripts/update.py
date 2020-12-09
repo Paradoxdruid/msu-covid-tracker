@@ -143,6 +143,7 @@ def parse_tableau_data(url, sheetid):
     ]["genDataDictionaryPresModel"]["dataSegments"]["0"]["dataColumns"]
 
     final_values = finaldata[0]["dataValues"]
+    final_values[0] += 80  # correction for data source change
     return final_values
 
 
