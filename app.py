@@ -39,8 +39,7 @@ def make_graph(csv_filename):
     def weekly_text(week_to_week):
         if week_to_week > 0:
             return f"On average, new cases are up {week_to_week}% week over week."
-        else:
-            return f"On average, new cases are down {week_to_week}% week over week."
+        return f"On average, new cases are down {week_to_week}% week over week."
 
     fig = go.Figure()
     fig.add_trace(

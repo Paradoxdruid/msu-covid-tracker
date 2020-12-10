@@ -47,7 +47,6 @@ def main(url, filename):
     """
     get_data_process_and_write_csv(url, filename)
     # make_covid_graph(filename)
-    return
 
 
 def get_data_process_and_write_csv(url, filename):
@@ -62,7 +61,6 @@ def get_data_process_and_write_csv(url, filename):
     values = parse_tableau_data(data_url, data_dict)
     values_with_date = prepend_date(values)
     write_to_csv(values_with_date, filename)
-    return
 
 
 def get_tableau_url(url):
@@ -172,7 +170,6 @@ def write_to_csv(values, filename):
     with open(filename, "a") as file:
         csv_writer = csv.writer(file)
         csv_writer.writerow(values)
-    return
 
 
 # def make_covid_graph(csv_filename):
