@@ -58,6 +58,7 @@ def make_graph(csv_filename):
             mode="markers",
             name="New Cases",
             marker={"color": "blue"},
+            yaxis="y2",
         )
     )
     fig.add_trace(
@@ -78,30 +79,45 @@ def make_graph(csv_filename):
             name="Average New Cases",
             line={"color": "blue"},
             showlegend=False,
+            yaxis="y2",
         )
     )
 
-    fig.add_shape(
-        type="line",
-        x0="2020-11-22",
-        x1="2020-11-22",
-        yref="paper",
-        y0=0,
-        y1=1,
-        line=dict(color="black", width=2, dash="dot"),
-    )
+    # fig.add_shape(
+    #     type="line",
+    #     x0="2020-11-22",
+    #     x1="2020-11-22",
+    #     yref="paper",
+    #     y0=0,
+    #     y1=1,
+    #     line=dict(color="black", width=2, dash="dot"),
+    # )
 
-    fig.add_annotation(
-        x="2020-11-22",
-        yref="paper",
-        y=0.5,
-        text="Data Source change",
-        showarrow=False,
-        xshift=-15,
-        textangle=-90,
-    )
+    # fig.add_annotation(
+    #     x="2020-11-22",
+    #     yref="paper",
+    #     y=0.5,
+    #     text="Data Source change",
+    #     showarrow=False,
+    #     xshift=-15,
+    #     textangle=-90,
+    # )
 
     fig.update_layout(
+        yaxis=dict(
+            title="Total Cases",
+            titlefont=dict(color="red"),
+            # tickfont=dict(color="#1f77b4"),
+        ),
+        yaxis2=dict(
+            title="New Cases",
+            titlefont=dict(color="blue"),
+            # tickfont=dict(color="#d62728"),
+            anchor="x",
+            overlaying="y",
+            side="right",
+            range=[0, 20],
+        ),
         xaxis_title="Date",
         yaxis_title="Cases",
         template="ggplot2",
