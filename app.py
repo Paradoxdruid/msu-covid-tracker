@@ -83,26 +83,6 @@ def make_graph(csv_filename):
         )
     )
 
-    # fig.add_shape(
-    #     type="line",
-    #     x0="2020-11-22",
-    #     x1="2020-11-22",
-    #     yref="paper",
-    #     y0=0,
-    #     y1=1,
-    #     line=dict(color="black", width=2, dash="dot"),
-    # )
-
-    # fig.add_annotation(
-    #     x="2020-11-22",
-    #     yref="paper",
-    #     y=0.5,
-    #     text="Data Source change",
-    #     showarrow=False,
-    #     xshift=-15,
-    #     textangle=-90,
-    # )
-
     fig.update_layout(
         yaxis=dict(
             title="Total Cases",
@@ -119,7 +99,7 @@ def make_graph(csv_filename):
             range=[0, 20],
         ),
         xaxis_title="Date",
-        yaxis_title="Cases",
+        yaxis_title="Total Cases",
         template="ggplot2",
         legend=dict(orientation="v", yanchor="bottom", y=0.8, xanchor="left", x=0),
         margin={"t": 40, "r": 40, "l": 40, "b": 40},
@@ -128,7 +108,7 @@ def make_graph(csv_filename):
     fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
     fig.update_yaxes(showline=True, linewidth=1, linecolor="black")
 
-    fig.update_xaxes(tickformat="%b %d")  # dtick="D1",
+    fig.update_xaxes(tickformat="%b %d")
 
     return fig, weekly_text(week_to_week)
 
@@ -144,7 +124,21 @@ app.layout = dbc.Container(
                             html.H4("MSU Denver COVID Cases", className="card-title"),
                         ),
                         dbc.CardBody([dcc.Graph(figure=fig)]),
-                        dbc.CardFooter(html.P(week_to_week)),
+                        dbc.CardFooter(
+                            [
+                                html.P(week_to_week, className="float-left"),
+                                html.P(
+                                    [
+                                        "Designed by ",
+                                        html.A(
+                                            "Dr. Andrew J. Bonham",
+                                            href="https://github.com/Paradoxdruid",
+                                        ),
+                                    ],
+                                    className="float-right",
+                                ),
+                            ],
+                        ),
                     ],
                     className="shadow-lg border-primary mb-3",
                     style={"min-width": "550px"},
