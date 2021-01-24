@@ -1,5 +1,9 @@
 # msu-covid-tracker
 
+<p align="right">
+  ⭐ &nbsp;&nbsp;the project to show your appreciation. :arrow_upper_right:
+</p>
+
 ![GitHub](https://img.shields.io/github/license/Paradoxdruid/msu-covid-tracker?color=success)  [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Paradoxdruid/msu-covid-tracker.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Paradoxdruid/msu-covid-tracker/context:python)  [![CodeFactor](https://www.codefactor.io/repository/github/paradoxdruid/msu-covid-tracker/badge)](https://www.codefactor.io/repository/github/paradoxdruid/msu-covid-tracker) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Heroku App Status](http://heroku-shields.herokuapp.com/msu-covid-tracker)](https://msu-covid-tracker.herokuapp.com) 
 
 ## Description
