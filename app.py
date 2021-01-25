@@ -32,9 +32,14 @@ def make_graph(csv_filename):
     df = df.iloc[1:]
     df["RollingCase"] = df["Case"].rolling(3).mean()
     df["RollingNew"] = df["New"].rolling(3).mean()
-    week_to_week = int(
-        100 * ((df["New"].iloc[-7:].mean() / df["New"].iloc[-14:-7].mean()) - 1)
-    )
+
+    def find_weekly_change(df):
+        new_df = df.set_index("Date").resample("1D").first()
+        week_to_week = int(
+            100
+            * ((new_df["New"].iloc[-7:].mean() / new_df["New"].iloc[-14:-7].mean()) - 1)
+        )
+        return weekly_text(week_to_week)
 
     def weekly_text(week_to_week):
         if week_to_week > 0:
@@ -110,10 +115,10 @@ def make_graph(csv_filename):
 
     fig.update_xaxes(tickformat="%b %d")
 
-    return fig, weekly_text(week_to_week)
+    return fig, find_weekly_change(df)
 
 
-fig, week_to_week = make_graph("msu_covid.csv")
+fig, week_to_week_text = make_graph("msu_covid.csv")
 app.layout = dbc.Container(
     [
         dbc.Row(
@@ -123,10 +128,12 @@ app.layout = dbc.Container(
                         dbc.CardHeader(
                             html.H4("MSU Denver COVID Cases", className="card-title"),
                         ),
-                        dbc.CardBody([dcc.Graph(figure=fig)]),
+                        dbc.CardBody(
+                            [dcc.Graph(figure=fig, config={"displayModeBar": False})]
+                        ),
                         dbc.CardFooter(
                             [
-                                html.P(week_to_week, className="float-left"),
+                                html.P(week_to_week_text, className="float-left"),
                                 html.P(
                                     [
                                         "Designed by ",
