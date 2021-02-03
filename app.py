@@ -115,7 +115,7 @@ def make_graph(csv_filename):
 
     fig.update_xaxes(tickformat="%b %d")
 
-    return fig, find_weekly_change(df)
+    return fig, ""  # find_weekly_change(df)
 
 
 fig, week_to_week_text = make_graph("msu_covid.csv")
