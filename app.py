@@ -32,12 +32,22 @@ def make_graph(csv_filename):
     df = df.iloc[1:]
     df["RollingCase"] = df["Case"].rolling(3).mean()
     df["RollingNew"] = df["New"].rolling(3).mean()
+    df["Real"] = df["Case"].diff()
+    df["RollingReal"] = df["Real"].rolling(3).mean()
+
+    def weird_division(n, d):
+        return n / d if d else 0
 
     def find_weekly_change(df):
         new_df = df.set_index("Date").resample("1D").first()
         week_to_week = int(
             100
-            * ((new_df["New"].iloc[-7:].mean() / new_df["New"].iloc[-14:-7].mean()) - 1)
+            * (
+                weird_division(
+                    new_df["Real"].iloc[-7:].mean(), new_df["Real"].iloc[-14:-7].mean()
+                )
+                - 1
+            )
         )
         return weekly_text(week_to_week)
 
@@ -50,19 +60,19 @@ def make_graph(csv_filename):
     fig.add_trace(
         go.Scatter(
             x=df["Date"],
-            y=df["Case"],
+            y=df["Real"],
             mode="markers",
-            name="Total Cases",
-            marker={"color": "red"},
+            name="New Cases",
+            marker={"color": "blue"},
         )
     )
     fig.add_trace(
         go.Scatter(
             x=df["Date"],
-            y=df["New"],
+            y=df["Case"],
             mode="markers",
-            name="New Cases",
-            marker={"color": "blue"},
+            name="Total Cases",
+            marker={"color": "lightcoral"},
             yaxis="y2",
         )
     )
@@ -72,39 +82,39 @@ def make_graph(csv_filename):
             y=df["RollingCase"],
             mode="lines",
             name="Average Total Cases",
-            line={"color": "red"},
+            line={"color": "lightcoral"},
             showlegend=False,
+            yaxis="y2",
         )
     )
     fig.add_trace(
         go.Scatter(
             x=df["Date"],
-            y=df["RollingNew"],
+            y=df["RollingReal"],
             mode="lines",
             name="Average New Cases",
             line={"color": "blue"},
             showlegend=False,
-            yaxis="y2",
         )
     )
 
     fig.update_layout(
-        yaxis=dict(
-            title="Total Cases",
-            titlefont=dict(color="red"),
-            # tickfont=dict(color="#1f77b4"),
-        ),
         yaxis2=dict(
-            title="New Cases",
-            titlefont=dict(color="blue"),
-            # tickfont=dict(color="#d62728"),
+            title="Total Cases",
+            titlefont=dict(color="lightcoral"),
             anchor="x",
             overlaying="y",
             side="right",
-            range=[0, 20],
+            # tickfont=dict(color="#1f77b4"),
+        ),
+        yaxis=dict(
+            title="New Cases",
+            titlefont=dict(color="blue"),
+            range=[0, 15],
+            # tickfont=dict(color="#d62728"),
         ),
         xaxis_title="Date",
-        yaxis_title="Total Cases",
+        yaxis_title="New Cases",
         template="ggplot2",
         legend=dict(orientation="v", yanchor="bottom", y=0.8, xanchor="left", x=0),
         margin={"t": 40, "r": 40, "l": 40, "b": 40},
@@ -115,7 +125,7 @@ def make_graph(csv_filename):
 
     fig.update_xaxes(tickformat="%b %d")
 
-    return fig, ""  # find_weekly_change(df)
+    return fig, find_weekly_change(df)
 
 
 fig, week_to_week_text = make_graph("msu_covid.csv")
