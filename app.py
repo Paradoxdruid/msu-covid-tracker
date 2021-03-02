@@ -58,22 +58,26 @@ def make_graph(csv_filename):
 
     fig = go.Figure()
     fig.add_trace(
-        go.Scatter(
+        go.Bar(
             x=df["Date"],
             y=df["Real"],
-            mode="markers",
+            # mode="markers",
             name="New Cases",
-            marker={"color": "blue"},
+            marker={"color": "lightskyblue"},
+            yaxis="y2",
+            width=1000 * 3600 * 24 * 0.5,
+            offset=1000 * 3600 * 24 * 0.5,
         )
     )
     fig.add_trace(
-        go.Scatter(
+        go.Bar(
             x=df["Date"],
             y=df["Case"],
-            mode="markers",
+            # mode="markers",
             name="Total Cases",
-            marker={"color": "lightcoral"},
-            yaxis="y2",
+            marker={"color": "lightpink"},
+            width=1000 * 3600 * 24 * 0.5,
+            # yaxis="y2",
         )
     )
     fig.add_trace(
@@ -82,9 +86,9 @@ def make_graph(csv_filename):
             y=df["RollingCase"],
             mode="lines",
             name="Average Total Cases",
-            line={"color": "lightcoral"},
+            line={"color": "tomato"},
             showlegend=False,
-            yaxis="y2",
+            # yaxis="y2",
         )
     )
     fig.add_trace(
@@ -95,26 +99,26 @@ def make_graph(csv_filename):
             name="Average New Cases",
             line={"color": "blue"},
             showlegend=False,
+            yaxis="y2",
         )
     )
 
     fig.update_layout(
         yaxis2=dict(
-            title="Total Cases",
-            titlefont=dict(color="lightcoral"),
+            title="New Cases",
+            titlefont=dict(color="blue"),
             anchor="x",
             overlaying="y",
             side="right",
+            range=[0, 15],
             # tickfont=dict(color="#1f77b4"),
         ),
         yaxis=dict(
-            title="New Cases",
-            titlefont=dict(color="blue"),
-            range=[0, 15],
+            title="Total Cases",
+            titlefont=dict(color="lightcoral"),
             # tickfont=dict(color="#d62728"),
         ),
         xaxis_title="Date",
-        yaxis_title="New Cases",
         template="ggplot2",
         legend=dict(orientation="v", yanchor="bottom", y=0.8, xanchor="left", x=0),
         margin={"t": 40, "r": 40, "l": 40, "b": 40},
@@ -172,4 +176,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)
