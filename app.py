@@ -58,25 +58,27 @@ def make_graph(csv_filename):
 
     fig = go.Figure()
     fig.add_trace(
-        go.Bar(
+        go.Scatter(
             x=df["Date"],
             y=df["Real"],
-            # mode="markers",
+            mode="markers",
             name="New Cases",
             marker={"color": "lightskyblue"},
             yaxis="y2",
-            width=1000 * 3600 * 24 * 0.5,
-            offset=1000 * 3600 * 24 * 0.5,
+            showlegend=False,
+            # width=1000 * 3600 * 24 * 0.5,
+            # offset=1000 * 3600 * 24 * 0.5,
         )
     )
     fig.add_trace(
-        go.Bar(
+        go.Scatter(
             x=df["Date"],
             y=df["Case"],
-            # mode="markers",
+            mode="markers",
             name="Total Cases",
             marker={"color": "lightpink"},
-            width=1000 * 3600 * 24 * 0.5,
+            showlegend=False,
+            # width=1000 * 3600 * 24 * 0.5,
             # yaxis="y2",
         )
     )
@@ -87,8 +89,9 @@ def make_graph(csv_filename):
             mode="lines",
             name="Average Total Cases",
             line={"color": "tomato"},
-            showlegend=False,
+            # showlegend=False,
             # yaxis="y2",
+            fill="tozeroy",
         )
     )
     fig.add_trace(
@@ -98,8 +101,9 @@ def make_graph(csv_filename):
             mode="lines",
             name="Average New Cases",
             line={"color": "blue"},
-            showlegend=False,
+            # showlegend=False,
             yaxis="y2",
+            fill="tozeroy",
         )
     )
 
