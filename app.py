@@ -4,6 +4,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objects as go
+import boto3
+import io
+import os
 
 app = dash.Dash(
     __name__,
@@ -16,18 +19,17 @@ app.title = "MSU COVID"
 
 
 # Functions
-def make_graph(csv_filename):
+def make_graph(df):
     """Take in a dataframe and make a pretty interactive graph.
 
     Args:
-        csv_filename (str): csv_filename
+        df (pd.DataFrame): dataframe of covid data
 
     Returns:
         fig: plotly figure object
         week_to_week: str explaining % change over time in new cases
     """
 
-    df = pd.read_csv(csv_filename, header=0)
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.iloc[1:]
     df["RollingCase"] = df["Case"].rolling(3).mean()
@@ -136,7 +138,29 @@ def make_graph(csv_filename):
     return fig, find_weekly_change(df)
 
 
-fig, week_to_week_text = make_graph("msu_covid.csv")
+def get_s3_data():
+    """Retrieve latest covid data from Amazon s3 bucket and process to a dataframe.
+
+    Returns:
+        pd.DataFrame: Dataframe of covid data
+    """
+    s3_client = boto3.client("s3")
+    BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+    OBJECT_NAME = "msu_covid.csv"
+    bytes_buffer = io.BytesIO()
+
+    s3_client.download_fileobj(
+        Bucket=BUCKET_NAME, Key=OBJECT_NAME, Fileobj=bytes_buffer
+    )
+    byte_value = bytes_buffer.getvalue()
+    str_value = byte_value.decode()
+
+    df = pd.read_csv(io.StringIO(str_value), header=0)
+    return df
+
+
+data = get_s3_data()
+fig, week_to_week_text = make_graph(data)
 app.layout = dbc.Container(
     [
         dbc.Row(

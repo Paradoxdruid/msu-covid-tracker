@@ -17,11 +17,19 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-import csv
-from datetime import date
 
-# import pandas as pd
-# import plotly.graph_objects as go
+# import csv
+from datetime import date
+import boto3
+import os
+import io
+from botocore.exceptions import ClientError
+
+
+# Amazon S3 constants
+BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+OBJECT_NAME = "msu_covid.csv"
+
 
 #  and output filename
 # URL: str = "https://public.tableau.com/views/COVIDTracker_16021924036240/Dashboard2"
@@ -60,7 +68,9 @@ def get_data_process_and_write_csv(url, filename):
     data_url, data_dict = parse_tableau_config_return_data_url(url_data)
     values = parse_tableau_data(data_url, data_dict)
     values_with_date = prepend_date(values)
-    write_to_csv(values_with_date, filename)
+    current_data = read_current_s3()
+    final_data = append_new_data(current_data, values_with_date)
+    save_to_s3(final_data)
 
 
 def get_tableau_url(url):
@@ -126,10 +136,7 @@ def parse_tableau_data(url, sheetid):
         List[str]: list of Tableau data values
     """
     # Grab the data and parse it
-    r2 = requests.post(
-        url,
-        data={"sheet_id": sheetid},
-    )
+    r2 = requests.post(url, data={"sheet_id": sheetid},)
 
     dataReg = re.search(r"\d+;({.*})\d+;({.*})", r2.text, re.MULTILINE)
 
@@ -160,93 +167,68 @@ def prepend_date(values):
     return values
 
 
-def write_to_csv(values, filename):
-    """Write Tableau data values to a simple csv file.
+# def write_to_csv(values, filename):
+#     """Write Tableau data values to a simple csv file.
+
+#     Args:
+#         values (List[str]): list of Tableau data values
+#         filename (str): output filename
+#     """
+#     with open(filename, "a") as file:
+#         csv_writer = csv.writer(file)
+#         csv_writer.writerow(values)
+
+
+def read_current_s3():
+    """Retrieve latest covid data from Amazon s3 bucket and process as a csv fileobject.
+
+    Returns:
+        io.String: string object of covid data
+    """
+    s3_client = boto3.client("s3")
+    bytes_buffer = io.BytesIO()
+
+    s3_client.download_fileobj(
+        Bucket=BUCKET_NAME, Key=OBJECT_NAME, Fileobj=bytes_buffer
+    )
+    byte_value = bytes_buffer.getvalue()
+    str_value = byte_value.decode()
+    return io.StringIO(str_value)
+
+
+def save_to_s3(final_data):
+    """Upload a file to an S3 bucket.
 
     Args:
-        values (List[str]): list of Tableau data values
-        filename (str): output filename
+        final_data: string fileobject of final data
+
+    Returns:
+        True if file was uploaded, else False
     """
-    with open(filename, "a") as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow(values)
+
+    s3_client = boto3.client("s3")
+    try:
+        _ = s3_client.put_object(
+            Bucket=BUCKET_NAME, Key=OBJECT_NAME, Body=final_data.getvalue()
+        )
+    except ClientError as e:
+        print(e)
+        return False
+    return True
 
 
-# def make_covid_graph(csv_filename):
-#     """Create a dataframe from covid csv file and output a dated .png image.
+def append_new_data(current_data, values):
+    """Write Tableau data values to a simple csv fileobject.
 
-#     Args:
-#         css_filename (str): filename of .csv to process
-#     """
-#     df, date = read_covid_csv(csv_filename)
-#     make_graph(df, date)
-#     return
-
-
-# def read_covid_csv(csv_filename):
-#     """Read in a .csv file with covid case data and return a dataframe and current date.
-
-#     Args:
-#         csv_filename (str): filename of .csv to process
-
-#     Returns:
-#         Tuple[pd.DataFrame, str]: dataframe of .csv file info and string of current date.
-#     """
-
-#     df = pd.read_csv(csv_filename, header=0)
-#     df["Date"] = pd.to_datetime(df["Date"])
-#     date = df["Date"].iloc[-1].strftime("%Y_%m_%d")
-#     return df, date
-
-
-# def make_graph(df, date):
-#     """Take in a dataframe and current date and write a pretty .png image.
-
-#     Args:
-#         df (pd.DataFrame): covid data dataframe
-#         date (str): latest date in string format
-#     """
-
-#     fig = go.Figure()
-#     fig.add_trace(
-#         go.Scatter(
-#             x=df["Date"],
-#             y=df["Case"],
-#             mode="lines+markers+text",
-#             name="Total Cases",
-#             text=df["Case"],
-#             textposition="top center",
-#         )
-#     )
-#     fig.add_trace(
-#         go.Scatter(
-#             x=df["Date"],
-#             y=df["New"],
-#             mode="lines+markers+text",
-#             name="New Cases",
-#             text=df["New"],
-#             textposition="top center",
-#         )
-#     )
-
-#     fig.update_layout(
-#         title="COVID Cases at MSU Denver",
-#         xaxis_title="Date",
-#         yaxis_title="Cases",
-#         template="ggplot2",
-#         # color_discrete_sequence=colors.sequential.Rainbow_r,
-#         #     height=500,
-#         #     width=900,
-#         legend=dict(orientation="v", yanchor="bottom", y=0.4, xanchor="right", x=1),
-#     )
-
-#     fig.update_xaxes(showline=True, linewidth=1, linecolor="black")
-#     fig.update_yaxes(showline=True, linewidth=1, linecolor="black")
-
-#     fig.update_xaxes(dtick="D1", tickformat="%b %d")
-
-#     fig.write_image("./assets/msu_covid.png")
-#     return
+    Args:
+        current_data: output fileobject
+        values (List[str]): list of Tableau data values
+    """
+    string_to_write = ",".join(values) + "\n"
+    current_data.seek(0, 2)
+    current_data.write(string_to_write)
+    current_data.seek(0)
+    return current_data
 
 
 if __name__ == "__main__":
