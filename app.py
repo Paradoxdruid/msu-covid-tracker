@@ -20,6 +20,10 @@ server = app.server
 
 app.title = "MSU COVID"
 
+# Load s3 environment variables
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+
 
 # Functions
 def make_graph(df):
