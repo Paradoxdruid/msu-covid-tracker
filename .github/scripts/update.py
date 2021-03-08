@@ -17,12 +17,18 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-import csv
+
+# import csv
 from datetime import date
 import boto3
 import os
 import io
 from botocore.exceptions import ClientError
+
+
+# Amazon S3 constants
+BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+OBJECT_NAME = "msu_covid.csv"
 
 
 #  and output filename
@@ -161,16 +167,16 @@ def prepend_date(values):
     return values
 
 
-def write_to_csv(values, filename):
-    """Write Tableau data values to a simple csv file.
+# def write_to_csv(values, filename):
+#     """Write Tableau data values to a simple csv file.
 
-    Args:
-        values (List[str]): list of Tableau data values
-        filename (str): output filename
-    """
-    with open(filename, "a") as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow(values)
+#     Args:
+#         values (List[str]): list of Tableau data values
+#         filename (str): output filename
+#     """
+#     with open(filename, "a") as file:
+#         csv_writer = csv.writer(file)
+#         csv_writer.writerow(values)
 
 
 def read_current_s3():
@@ -180,8 +186,6 @@ def read_current_s3():
         io.String: string object of covid data
     """
     s3_client = boto3.client("s3")
-    BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-    OBJECT_NAME = "msu-covid.csv"
     bytes_buffer = io.BytesIO()
 
     s3_client.download_fileobj(
@@ -202,11 +206,11 @@ def save_to_s3(final_data):
         True if file was uploaded, else False
     """
 
-    OBJECT_NAME = "msu-covid.csv"
-    BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
     s3_client = boto3.client("s3")
     try:
-        _ = s3_client.upload_file(final_data, BUCKET_NAME, OBJECT_NAME)
+        _ = s3_client.put_object(
+            Bucket=BUCKET_NAME, Key=OBJECT_NAME, Body=final_data.getvalue()
+        )
     except ClientError as e:
         print(e)
         return False
@@ -220,8 +224,10 @@ def append_new_data(current_data, values):
         current_data: output fileobject
         values (List[str]): list of Tableau data values
     """
-    csv_writer = csv.writer(current_data)
-    csv_writer.writerow(values)
+    string_to_write = ",".join(values) + "\n"
+    current_data.seek(0, 2)
+    current_data.write(string_to_write)
+    current_data.seek(0)
     return current_data
 
 

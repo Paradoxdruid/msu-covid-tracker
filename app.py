@@ -146,7 +146,7 @@ def get_s3_data():
     """
     s3_client = boto3.client("s3")
     BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-    OBJECT_NAME = "msu-covid.csv"
+    OBJECT_NAME = "msu_covid.csv"
     bytes_buffer = io.BytesIO()
 
     s3_client.download_fileobj(
