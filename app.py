@@ -8,6 +8,9 @@ import boto3
 import io
 import os
 
+# Suppress chained assignment warning
+pd.options.mode.chained_assignment = None  # default='warn'
+
 app = dash.Dash(
     __name__,
     external_stylesheets=[dbc.themes.FLATLY],
