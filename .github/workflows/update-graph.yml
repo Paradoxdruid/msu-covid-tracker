@@ -3,6 +3,8 @@ name: Update COVID Graph
 on:
   schedule:
     - cron: "0 2 * * *"
+  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
