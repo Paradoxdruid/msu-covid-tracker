@@ -7,18 +7,11 @@ import plotly.graph_objects as go
 import boto3
 import io
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 # Suppress chained assignment warning
 pd.options.mode.chained_assignment = None  # default='warn'
-
-app = dash.Dash(
-    __name__,
-    external_stylesheets=[dbc.themes.FLATLY],
-    meta_tags=[{"name": "google", "content": "notranslate"}],
-)
-server = app.server
-
-app.title = "MSU COVID"
 
 # Load s3 environment variables
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
@@ -166,49 +159,94 @@ def get_s3_data():
     return df
 
 
-data = get_s3_data()
-fig, week_to_week_text = make_graph(data)
-app.layout = dbc.Container(
-    [
-        dbc.Row(
-            dbc.Col(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(
-                            html.H4("MSU Denver COVID Cases", className="card-title"),
-                        ),
-                        dbc.CardBody(
-                            [dcc.Graph(figure=fig, config={"displayModeBar": False})]
-                        ),
-                        dbc.CardFooter(
-                            [
-                                html.P(week_to_week_text, className="float-left"),
-                                html.P(
-                                    [
-                                        "Designed by ",
-                                        html.A(
-                                            "Dr. Andrew J. Bonham",
-                                            href="https://github.com/Paradoxdruid",
-                                        ),
-                                    ],
-                                    className="float-right",
+RELOAD_INTERVAL = 24 * 3600  # reload interval in seconds, 24 hours
+
+
+def refresh_data_every():
+    """Threa executor loop to refresh data every 24 hours."""
+    while True:
+        refresh_data()
+        time.sleep(RELOAD_INTERVAL)
+
+
+def refresh_data():
+    """Grab fresh data from Amazon S3 and set to a global data variable."""
+    global data
+    data = get_s3_data()
+
+
+def make_layout():
+    """Layout must be a function so that each page load recreates layout.
+
+    See: https://community.plotly.com/t/solved-updating-server-side-app-data-on-a-schedule/6612."""  # noqa
+    fig, week_to_week_text = make_graph(data)
+    return dbc.Container(
+        [
+            dbc.Row(
+                dbc.Col(
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                html.H4(
+                                    "MSU Denver COVID Cases", className="card-title"
                                 ),
-                            ],
-                        ),
-                    ],
-                    className="shadow-lg border-primary mb-3",
-                    style={"min-width": "550px"},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Graph(
+                                        figure=fig, config={"displayModeBar": False}
+                                    )
+                                ]
+                            ),
+                            dbc.CardFooter(
+                                [
+                                    html.P(week_to_week_text, className="float-left"),
+                                    html.P(
+                                        [
+                                            "Designed by ",
+                                            html.A(
+                                                "Dr. Andrew J. Bonham",
+                                                href="https://github.com/Paradoxdruid",
+                                            ),
+                                        ],
+                                        className="float-right",
+                                    ),
+                                ],
+                            ),
+                        ],
+                        className="shadow-lg border-primary mb-3",
+                        style={"min-width": "550px"},
+                    ),
+                    width={"size": 6, "offset": 3},
+                    style={"min-width": "600px"},
                 ),
-                width={"size": 6, "offset": 3},
-                style={"min-width": "600px"},
+                style={"padding-top": "40px"},
             ),
-            style={"padding-top": "40px"},
-        ),
-    ],
-    fluid=True,
-    className="bg-secondary",
-    style={"min-height": "100vh"},
+        ],
+        fluid=True,
+        className="bg-secondary",
+        style={"min-height": "100vh"},
+    )
+
+
+# Initialize the app
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.FLATLY],
+    meta_tags=[{"name": "google", "content": "notranslate"}],
 )
+server = app.server
+app.title = "MSU COVID"
+
+# Get initial data
+refresh_data()
+
+# Provide layout at function for refresh on page load
+app.layout = make_layout
+
+# Run the data refresh function in another thread
+executor = ThreadPoolExecutor(max_workers=1)
+executor.submit(refresh_data_every)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
