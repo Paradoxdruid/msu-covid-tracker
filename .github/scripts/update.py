@@ -224,7 +224,7 @@ def append_new_data(current_data, values):
         current_data: output fileobject
         values (List[str]): list of Tableau data values
     """
-    string_to_write = ",".join(values) + "\n"
+    string_to_write = ",".join(str(v) for v in values) + "\n"
     current_data.seek(0, 2)
     current_data.write(string_to_write)
     current_data.seek(0)
