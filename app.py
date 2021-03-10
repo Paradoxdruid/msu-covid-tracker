@@ -7,8 +7,9 @@ import plotly.graph_objects as go
 import boto3
 import io
 import os
-import time
-from concurrent.futures import ThreadPoolExecutor
+
+# import time
+# from concurrent.futures import ThreadPoolExecutor
 
 # Suppress chained assignment warning
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -159,26 +160,27 @@ def get_s3_data():
     return df
 
 
-RELOAD_INTERVAL = 24 * 3600  # reload interval in seconds, 24 hours
+# RELOAD_INTERVAL = 24 * 3600  # reload interval in seconds, 24 hours
 
 
-def refresh_data_every():
-    """Threa executor loop to refresh data every 24 hours."""
-    while True:
-        refresh_data()
-        time.sleep(RELOAD_INTERVAL)
+# def refresh_data_every():
+#     """Threa executor loop to refresh data every 24 hours."""
+#     while True:
+#         refresh_data()
+#         time.sleep(RELOAD_INTERVAL)
 
 
-def refresh_data():
-    """Grab fresh data from Amazon S3 and set to a global data variable."""
-    global data
-    data = get_s3_data()
+# def refresh_data():
+#     """Grab fresh data from Amazon S3 and set to a global data variable."""
+#     global data
+#     data = get_s3_data()
 
 
 def make_layout():
     """Layout must be a function so that each page load recreates layout.
 
     See: https://community.plotly.com/t/solved-updating-server-side-app-data-on-a-schedule/6612."""  # noqa
+    data = get_s3_data()
     fig, week_to_week_text = make_graph(data)
     return dbc.Container(
         [
@@ -238,15 +240,15 @@ app = dash.Dash(
 server = app.server
 app.title = "MSU COVID"
 
-# Get initial data
-refresh_data()
+# # Get initial data
+# refresh_data()
 
 # Provide layout at function for refresh on page load
 app.layout = make_layout
 
-# Run the data refresh function in another thread
-executor = ThreadPoolExecutor(max_workers=1)
-executor.submit(refresh_data_every)
+# # Run the data refresh function in another thread
+# executor = ThreadPoolExecutor(max_workers=1)
+# executor.submit(refresh_data_every)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
