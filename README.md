@@ -12,7 +12,7 @@ Collects daily [MSU Denver covid dashboard](https://www.msudenver.edu/safe-retur
 **[https://msu-covid-tracker.herokuapp.com](https://msu-covid-tracker.herokuapp.com)**
 
 ## Workflow
-This app relies on [Github actions](https://github.com/features/actions) to grab updated data, commit them to this repository, and then push those changes to dynamic python hosting on heroku.com.
+This app relies on [Github actions](https://github.com/features/actions) to grab updated data and store in in an Amazon S3 Bucket. The app, dynamically hosted on heroku.com, then reads fresh data from S3.
 
 ## Authors
 This script is developed as academic software by [Dr. Andrew J. Bonham](https://github.com/Paradoxdruid) at the [Metropolitan State University of Denver](https://www.msudenver.edu). It is licensed under the GPL v3.0.

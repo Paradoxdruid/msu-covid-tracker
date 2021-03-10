@@ -9,4 +9,5 @@ dependencies:
     - dash-bootstrap-components
     - pandas
     - plotly
+    - boto3
     - gunicorn # for app deployment
